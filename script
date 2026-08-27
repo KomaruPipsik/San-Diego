@@ -1,0 +1,511 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local CoreGui = game:GetService("CoreGui")
+
+local player = Players.LocalPlayer
+
+-- Проверка ID игрока
+local allowedIds = {
+    [1982382208] = true,
+    [2716064257] = true,
+    [4672404218] = true,
+}
+
+if not allowedIds[player.UserId] then
+    local accessGui = Instance.new("ScreenGui")
+    accessGui.Name = "AccessDeniedGui"
+    accessGui.ResetOnSpawn = false
+    accessGui.Parent = CoreGui
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    bg.BackgroundTransparency = 0.2
+    bg.Parent = accessGui
+
+    local modal = Instance.new("Frame")
+    modal.Size = UDim2.new(0, 360, 0, 180)
+    modal.Position = UDim2.new(0.5, -180, 0.5, -90)
+    modal.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    modal.BorderSizePixel = 0
+    modal.Parent = bg
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 16)
+    corner.Parent = modal
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(120, 80, 255)
+    stroke.Thickness = 2
+    stroke.Parent = modal
+
+    local titleText = Instance.new("TextLabel")
+    titleText.Size = UDim2.new(1, 0, 0, 40)
+    titleText.Position = UDim2.new(0, 0, 0, 15)
+    titleText.BackgroundTransparency = 1
+    titleText.Text = "⛔ ДОСТУП ОГРАНИЧЕН"
+    titleText.TextColor3 = Color3.fromRGB(255, 70, 70)
+    titleText.TextSize = 18
+    titleText.Font = Enum.Font.GothamBold
+    titleText.Parent = modal
+
+    local descText = Instance.new("TextLabel")
+    descText.Size = UDim2.new(0.9, 0, 0, 60)
+    descText.Position = UDim2.new(0.05, 0, 0, 60)
+    descText.BackgroundTransparency = 1
+    descText.Text = "У вас нет прав для использования этого скрипта.\nКупить доступ можно в ТГК:"
+    descText.TextColor3 = Color3.fromRGB(200, 200, 210)
+    descText.TextSize = 13
+    descText.Font = Enum.Font.Gotham
+    descText.TextWrapped = true
+    descText.Parent = modal
+
+    local tgcLabel = Instance.new("TextLabel")
+    tgcLabel.Size = UDim2.new(1, 0, 0, 35)
+    tgcLabel.Position = UDim2.new(0, 0, 0, 125)
+    tgcLabel.BackgroundColor3 = Color3.fromRGB(40, 30, 60)
+    tgcLabel.Text = "@SHOPtot_komaru"
+    tgcLabel.TextColor3 = Color3.fromRGB(160, 120, 255)
+    tgcLabel.TextSize = 14
+    tgcLabel.Font = Enum.Font.GothamBold
+    tgcLabel.Parent = modal
+    
+    local tgcCorner = Instance.new("UICorner")
+    tgcCorner.CornerRadius = UDim.new(0, 8)
+    tgcCorner.Parent = tgcLabel
+
+    return
+end
+
+if CoreGui:FindFirstChild("TotKomaruMenu") then
+    CoreGui.TotKomaruMenu:Destroy()
+end
+
+-- Создание UI (увеличили высоту под новые кнопки)
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TotKomaruMenu"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = CoreGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 240, 0, 300)
+mainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 12)
+mainCorner.Parent = mainFrame
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Color3.fromRGB(90, 60, 200)
+mainStroke.Thickness = 1.5
+mainStroke.Parent = mainFrame
+
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1, 0, 0, 32)
+topBar.BackgroundColor3 = Color3.fromRGB(28, 28, 38)
+topBar.BorderSizePixel = 0
+topBar.Parent = mainFrame
+
+local topCorner = Instance.new("UICorner")
+topCorner.CornerRadius = UDim.new(0, 12)
+topCorner.Parent = topBar
+
+local fixBar = Instance.new("Frame")
+fixBar.Size = UDim2.new(1, 0, 0, 6)
+fixBar.Position = UDim2.new(0, 0, 1, -6)
+fixBar.BackgroundColor3 = Color3.fromRGB(28, 28, 38)
+fixBar.BorderSizePixel = 0
+fixBar.Parent = topBar
+
+local authorLabel = Instance.new("TextLabel")
+authorLabel.Size = UDim2.new(1, 0, 1, 0)
+authorLabel.BackgroundTransparency = 1
+authorLabel.Text = "by: tot_komaru"
+authorLabel.TextColor3 = Color3.fromRGB(150, 120, 255)
+authorLabel.TextSize = 13
+authorLabel.Font = Enum.Font.GothamBold
+authorLabel.Parent = topBar
+
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(0.86, 0, 0, 36)
+speedBox.Position = UDim2.new(0.07, 0, 0, 44)
+speedBox.BackgroundColor3 = Color3.fromRGB(26, 26, 36)
+speedBox.BorderSizePixel = 0
+speedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedBox.TextSize = 13
+speedBox.Font = Enum.Font.Gotham
+speedBox.PlaceholderText = "Скорость (база: 300)"
+speedBox.Text = "300"
+speedBox.Parent = mainFrame
+
+local speedCorner = Instance.new("UICorner")
+speedCorner.CornerRadius = UDim.new(0, 8)
+speedCorner.Parent = speedBox
+
+local speedStroke = Instance.new("UIStroke")
+speedStroke.Color = Color3.fromRGB(45, 45, 65)
+speedStroke.Transparency = 0.5
+speedStroke.Parent = speedBox
+
+local startButton = Instance.new("TextButton")
+startButton.Size = UDim2.new(0.86, 0, 0, 38)
+startButton.Position = UDim2.new(0.07, 0, 0, 88)
+startButton.BackgroundColor3 = Color3.fromRGB(70, 40, 200)
+startButton.BorderSizePixel = 0
+startButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+startButton.TextSize = 14
+startButton.Font = Enum.Font.GothamBold
+startButton.Text = "СТАРТ"
+startButton.Parent = mainFrame
+
+local startCorner = Instance.new("UICorner")
+startCorner.CornerRadius = UDim.new(0, 8)
+startCorner.Parent = startButton
+
+-- Кнопка Анти-АФК
+local afkButton = Instance.new("TextButton")
+afkButton.Size = UDim2.new(0.86, 0, 0, 32)
+afkButton.Position = UDim2.new(0.07, 0, 0, 132)
+afkButton.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+afkButton.BorderSizePixel = 0
+afkButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+afkButton.TextSize = 12
+afkButton.Font = Enum.Font.GothamBold
+afkButton.Text = "АНТИ-АФК: ВЫКЛ"
+afkButton.Parent = mainFrame
+
+local afkCorner = Instance.new("UICorner")
+afkCorner.CornerRadius = UDim.new(0, 8)
+afkCorner.Parent = afkButton
+
+-- Кнопка Убрать игроков (Визуал)
+local hidePlayersButton = Instance.new("TextButton")
+hidePlayersButton.Size = UDim2.new(0.86, 0, 0, 32)
+hidePlayersButton.Position = UDim2.new(0.07, 0, 0, 172)
+hidePlayersButton.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+hidePlayersButton.BorderSizePixel = 0
+hidePlayersButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+hidePlayersButton.TextSize = 12
+hidePlayersButton.Font = Enum.Font.GothamBold
+hidePlayersButton.Text = "СКРЫТЬ ИГРОКОВ: ВЫКЛ"
+hidePlayersButton.Parent = mainFrame
+
+local hideCorner = Instance.new("UICorner")
+hideCorner.CornerRadius = UDim.new(0, 8)
+hideCorner.Parent = hidePlayersButton
+
+local stopButton = Instance.new("TextButton")
+stopButton.Size = UDim2.new(0.86, 0, 0, 32)
+stopButton.Position = UDim2.new(0.07, 0, 0, 252)
+stopButton.BackgroundColor3 = Color3.fromRGB(50, 25, 35)
+stopButton.BorderSizePixel = 0
+stopButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+stopButton.TextSize = 12
+stopButton.Font = Enum.Font.GothamBold
+stopButton.Text = "СТОП"
+stopButton.Parent = mainFrame
+
+local stopCorner = Instance.new("UICorner")
+stopCorner.CornerRadius = UDim.new(0, 8)
+stopCorner.Parent = stopButton
+
+local function applyHoverEffect(btn, hoverColor, defaultColor)
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = hoverColor}):Play()
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = defaultColor}):Play()
+    end)
+end
+
+applyHoverEffect(startButton, Color3.fromRGB(90, 55, 240), Color3.fromRGB(70, 40, 200))
+applyHoverEffect(stopButton, Color3.fromRGB(70, 30, 45), Color3.fromRGB(50, 25, 35))
+
+local isRunning = false
+local scriptThread = nil
+local antiAfkEnabled = false
+local hidePlayersEnabled = false
+
+-- Логика Анти-АФК (автоматический прыжок раз в минуту или по триггеру)
+task.spawn(function()
+    while true do
+        task.wait(50) -- проверяем каждые 50 секунд
+        if antiAfkEnabled then
+            local char = player.Character
+            if char and char:FindFirstChildOfClass("Humanoid") then
+                char:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end
+    end
+end)
+
+afkButton.MouseButton1Click:Connect(function()
+    antiAfkEnabled = not antiAfkEnabled
+    if antiAfkEnabled then
+        afkButton.Text = "АНТИ-АФК: ВКЛ"
+        afkButton.TextColor3 = Color3.fromRGB(100, 255, 100)
+        TweenService:Create(afkButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 60, 40)}):Play()
+    else
+        afkButton.Text = "АНТИ-АФК: ВЫКЛ"
+        afkButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+        TweenService:Create(afkButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 50)}):Play()
+    end
+end)
+
+-- Логика скрытия игроков (визуально для себя)
+local function setPlayerHidden(otherPlayer, hidden)
+    if otherPlayer == player then return end
+    local char = otherPlayer.Character
+    if char then
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") or part:IsA("Decal") then
+                part.Transparency = hidden and 1 or 0
+            elseif part:IsA("BillboardGui") or part:IsA("SurfaceGui") then
+                part.Enabled = not hidden
+            end
+        end
+    end
+end
+
+hidePlayersButton.MouseButton1Click:Connect(function()
+    hidePlayersEnabled = not hidePlayersEnabled
+    if hidePlayersEnabled then
+        hidePlayersButton.Text = "СКРЫТЬ ИГРОКОВ: ВКЛ"
+        hidePlayersButton.TextColor3 = Color3.fromRGB(100, 255, 100)
+        TweenService:Create(hidePlayersButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 60, 40)}):Play()
+        
+        for _, p in ipairs(Players:GetPlayers()) do
+            setPlayerHidden(p, true)
+            p.CharacterAdded:Connect(function()
+                if hidePlayersEnabled then
+                    task.wait(0.5)
+                    setPlayerHidden(p, true)
+                end
+            end)
+        end
+    else
+        hidePlayersButton.Text = "СКРЫТЬ ИГРОКОВ: ВЫКЛ"
+        hidePlayersButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+        TweenService:Create(hidePlayersButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 50)}):Play()
+        
+        for _, p in ipairs(Players:GetPlayers()) do
+            setPlayerHidden(p, false)
+        end
+    end
+end)
+
+Players.PlayerAdded:Connect(function(p)
+    if hidePlayersEnabled then
+        p.CharacterAdded:Connect(function()
+            task.wait(0.5)
+            if hidePlayersEnabled then
+                setPlayerHidden(p, true)
+            end
+        end)
+    end
+end)
+
+local function holdKeyE(duration)
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    task.wait(duration)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+end
+
+local function lookAtCoords(targetCoords)
+    local camera = workspace.CurrentCamera
+    camera.CameraType = Enum.CameraType.Scriptable
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local hrp = character.HumanoidRootPart
+        camera.CFrame = CFrame.new(hrp.Position, targetCoords)
+    end
+end
+
+local function smoothMoveTo(targetPos, speed)
+    local character = player.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+    local hrp = character.HumanoidRootPart
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    
+    local startPos = hrp.Position
+    local distance = (targetPos - startPos).Magnitude
+    if distance < 1 then return end
+    
+    local timeTaken = distance / speed
+    
+    local pathPart = Instance.new("Part")
+    pathPart.Size = Vector3.new(6, 1.2, 6)
+    pathPart.Anchored = true
+    pathPart.CanCollide = true
+    pathPart.Transparency = 0.5
+    pathPart.BrickColor = BrickColor.new("Medium stone grey")
+    pathPart.Parent = workspace
+    
+    local startTime = tick()
+    while isRunning do
+        local elapsed = tick() - startTime
+        local alpha = math.clamp(elapsed / timeTaken, 0, 1)
+        local currentPos = startPos:Lerp(targetPos, alpha)
+        
+        if humanoid then
+            humanoid.PlatformStand = true
+        end
+        
+        hrp.CFrame = CFrame.new(currentPos)
+        pathPart.Position = currentPos - Vector3.new(0, 3.5, 0)
+        
+        if alpha >= 1 then
+            break
+        end
+        RunService.Heartbeat:Wait()
+    end
+    
+    pathPart:Destroy()
+    if humanoid then
+        humanoid.PlatformStand = false
+    end
+end
+
+-- Обновленный список точек маршрута (добавлена точка перемещения после финиша)
+local routePoints = {
+    Vector3.new(6844.2, 17.2, 26.4),  -- 1
+    Vector3.new(6807.9, 17.4, 22.6),  -- 2
+    Vector3.new(6867.9, 17.2, 45.7),  -- 3
+    Vector3.new(6901.1, 17.2, 98.2),  -- 4
+    Vector3.new(260.3, 17.2, 94.3),   -- 5
+    Vector3.new(261.7, 17.2, -45.3),  -- 6
+    Vector3.new(207.9, 21.1, -41.2),  -- 7
+    Vector3.new(261.7, 17.2, -45.1),  -- 8
+    Vector3.new(261.6, 17.2, 93.3),   -- 9
+    Vector3.new(6937.0, 17.2, 104.4), -- 10
+    Vector3.new(6812.7, 17.4, -35.1), -- 11
+    Vector3.new(6854.6, 17.4, -53.7), -- 12 (перемещение после самого последнего действия)
+}
+
+local function startAutomation()
+    while isRunning do
+        local speed = tonumber(speedBox.Text) or 300
+        
+        -- 1. Перенос на первую точку
+        smoothMoveTo(routePoints[1], speed)
+        if not isRunning then break end
+        
+        -- 2. Перенос на вторую точку
+        smoothMoveTo(routePoints[2], speed)
+        if not isRunning then break end
+        
+        -- Действия на 2-й точке: камера + 6 раз по 3 сек E с паузой 1 сек
+        player.CameraMode = Enum.CameraMode.LockFirstPerson
+        lookAtCoords(Vector3.new(6801.3, 20.1, 23.1))
+        
+        for i = 1, 6 do
+            if not isRunning then break end
+            holdKeyE(3)
+            task.wait(1)
+        end
+        
+        if not isRunning then break end
+        
+        player.CameraMode = Enum.CameraMode.Classic
+        workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+        
+        -- 3. Точки с 3 по 7
+        for i = 3, 7 do
+            if not isRunning then break end
+            smoothMoveTo(routePoints[i], speed)
+        end
+        
+        if not isRunning then break end
+        
+        -- Действия на 7-й точке (207.9, 21.1, -41.2):
+        player.CameraMode = Enum.CameraMode.LockFirstPerson
+        lookAtCoords(Vector3.new(209.4, 17.9, -41.2))
+        task.wait(0.5)
+        holdKeyE(3)
+        task.wait(1)
+        holdKeyE(3)
+        
+        player.CameraMode = Enum.CameraMode.Classic
+        workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+        
+        if not isRunning then break end
+        
+        -- 4. Перемещение по точкам 8, 9, 10
+        for i = 8, 10 do
+            if not isRunning then break end
+            smoothMoveTo(routePoints[i], speed)
+        end
+        
+        if not isRunning then break end
+        
+        -- 5. Перемещение на 11-тную точку (6812.7, 17.4, -35.1)
+        smoothMoveTo(routePoints[11], speed)
+        if not isRunning then break end
+        
+        -- Действия на 11-й точке: камера на 6804.1, 17.4, -34.5, ждем 2 сек, зажимаем E на 3 сек, ждем 11 сек, зажимаем E на 3 сек
+        player.CameraMode = Enum.CameraMode.LockFirstPerson
+        lookAtCoords(Vector3.new(6804.1, 17.4, -34.5))
+        task.wait(2)
+        holdKeyE(3)
+        task.wait(11)
+        holdKeyE(3)
+        
+        player.CameraMode = Enum.CameraMode.Classic
+        workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+        
+        if not isRunning then break end
+        
+        -- 6. Перемещение на завершающую точку круга (6854.6, 17.4, -53.7)
+        smoothMoveTo(routePoints[12], speed)
+        if not isRunning then break end
+        
+        -- Если включен анти-афк, персонаж автоматически прыгает перед началом нового круга
+        if antiAfkEnabled then
+            local char = player.Character
+            if char and char:FindFirstChildOfClass("Humanoid") then
+                char:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+            task.wait(1)
+        end
+        
+        -- После этого цикл автоматически начнется заново с 1-й точки!
+    end
+end
+
+startButton.MouseButton1Click:Connect(function()
+    if isRunning then return end
+    isRunning = true
+    startButton.Text = "РАБОТАЕТ..."
+    TweenService:Create(startButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 180, 80)}):Play()
+    
+    if scriptThread then
+        task.cancel(scriptThread)
+    end
+    scriptThread = task.spawn(startAutomation)
+end)
+
+stopButton.MouseButton1Click:Connect(function()
+    isRunning = false
+    if scriptThread then
+        task.cancel(scriptThread)
+        scriptThread = nil
+    end
+    
+    player.CameraMode = Enum.CameraMode.Classic
+    workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+    
+    local character = player.Character
+    if character and character:FindFirstChildOfClass("Humanoid") then
+        character:FindFirstChildOfClass("Humanoid").PlatformStand = false
+    end
+    
+    startButton.Text = "СТАРТ"
+    TweenService:Create(startButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 40, 200)}):Play()
+end)
